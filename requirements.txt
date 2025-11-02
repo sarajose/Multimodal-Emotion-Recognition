@@ -1,0 +1,27 @@
+# Core Deep Learning
+tensorflow>=2.15.0
+keras>=2.15.0
+
+# Audio Processing
+librosa>=0.10.0
+soundfile>=0.12.0
+audioread>=3.0.0
+
+# Text Processing
+textblob>=0.18.0
+nltk>=3.8.0
+
+# Machine Learning
+scikit-learn>=1.3.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Data Processing
+pandas>=2.0.0
+
+# Progress Bars (optional but nice)
+tqdm>=4.66.0
