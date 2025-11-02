@@ -10,10 +10,24 @@ This project compares two deep learning (CNN) approaches for speech emotion reco
 
 ## Dataset
 
-**CREMA-D (Crowd-sourced Emotional Multimodal Actors Dataset)**
+### CREMA-D (Crowd-sourced Emotional Multimodal Actors Dataset)
 - 7,442 audio clips (.wav files)
 - 6 emotions: Angry, Disgust, Fear, Happy, Neutral, Sad
 - 91 actors (48 male, 43 female)
+
+**Download:**
+1. Download from [Kaggle - CREMA-D Dataset](https://www.kaggle.com/datasets/ejlok1/cremad)
+2. Extract the raw `.wav` files into the `data/` folder
+
+### MELD (Multimodal EmotionLines Dataset)
+- Multimodal emotion recognition dataset
+- 7 emotions: anger, disgust, fear, joy, neutral, sadness, surprise
+
+**Download:**
+1. Download from [Kaggle - MELD Dataset](https://www.kaggle.com/datasets/zaber666/meld-dataset)
+2. Extract the `MELD.Raw` folder into `MELD_raw_data/`
+
+**Note:** Both data folders are not included in this repository due to size constraints.
 
 ## Project Structure
 
@@ -31,15 +45,35 @@ project/
 
 ## Usage
 
+### Quick Test
+
+To verify the installation and test that everything works with a small subset of data:
+
 ```bash
-# Train models only
+# Quick test with 100 samples (takes ~1-2 minutes)
+python quick_test.py
+```
+
+This will:
+- Extract features from 100 audio samples
+- Train both models for 5 epochs
+- Display basic accuracy metrics
+
+### Full Training
+
+```bash
+# Train models on full dataset
 python train.py --data-path data
+
+# For MELD dataset
+python train_meld.py --data-path MELD_raw_data
 
 # Evaluate trained models and interactive analysis
 jupyter notebook model_evaluation.ipynb
 ```
+
 This will:
-1. Extract audio and text features from CREMA-D dataset
+1. Extract audio and text features from the complete dataset
 2. Train both Baseline and Multimodal CNN models
 3. Evaluate and generate visualizations
 
