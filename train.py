@@ -188,4 +188,4 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
-    train_models(data_path=args.data_path, max_samples=args.max_samples)
+    train_models(data_path=args.data_path, max_samples=args.max_samples) 
