@@ -33,14 +33,19 @@ This project compares two deep learning (CNN) approaches for speech emotion reco
 
 ```
 project/
-├── feature_extraction.py      # Audio and text feature extraction
-├── models.py                  # CNN architectures
-├── train.py                   # Training pipeline
-├── evaluate.py                # 
-├── model_evaluation.ipynb     # Evaluation and visualization (Interactive analysis)
-├── requirements.txt           # Dependencies
-└── results/                   # Saved models and outputs
-└── figures/   
+├── feature_extraction.py       # Audio and text feature extraction (CREMA-D)
+├── feature_extraction_meld.py  # Audio and text feature extraction (MELD)
+├── models.py                   # CNN architectures
+├── train.py                    # Training pipeline (CREMA-D)
+├── train_meld.py               # Training pipeline (MELD)
+├── evaluate.py                 # Model evaluation (CREMA-D)
+├── evaluate_meld.py            # Model evaluation (MELD)
+├── quick_test.py               # Quick test script
+├── requirements.txt            # Dependencies
+├── results/                    # CREMA-D models and outputs
+├── results_meld/               # MELD models and outputs
+├── figures/                    # CREMA-D visualizations
+└── figures_meld/               # MELD visualizations
 ```
 
 ## Usage
@@ -67,15 +72,22 @@ python train.py --data-path data
 
 # For MELD dataset
 python train_meld.py --data-path MELD_raw_data
+```
 
-# Evaluate trained models and interactive analysis
-jupyter notebook model_evaluation.ipynb
+### Evaluation
+
+```bash
+# Evaluate CREMA-D models
+python evaluate.py
+
+# Evaluate MELD models
+python evaluate_meld.py
 ```
 
 This will:
-1. Extract audio and text features from the complete dataset
-2. Train both Baseline and Multimodal CNN models
-3. Evaluate and generate visualizations
+1. Load trained models and test data
+2. Generate predictions and calculate metrics
+3. Create and save visualizations (confusion matrices, ROC curves, etc.)
 
 ## Model Architectures
 
