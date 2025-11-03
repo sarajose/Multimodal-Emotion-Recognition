@@ -47,17 +47,17 @@ project/
 
 ### Quick Test
 
-To verify the installation and test that everything works with a small subset of data:
+To verify the installation:
 
 ```bash
-# Quick test with 100 samples (takes ~1-2 minutes)
 python quick_test.py
 ```
 
 This will:
-- Extract features from 100 audio samples
+- Load pre-extracted features from both CREMA-D and MELD datasets (100 samples each)
 - Train both models for 5 epochs
-- Display basic accuracy metrics
+
+Note: The test data is already included in `results/` and `results_meld/` folders.
 
 ### Full Training
 
@@ -82,8 +82,8 @@ This will:
 ### Baseline CNN (audio only)
 ```
 Input (47, 1) 
-→ Conv1D(64, kernel=3) + MaxPool(2) + Dropout(0.3)
-→ Conv1D(128, kernel=3) + GlobalAvgPool + Dropout(0.4)
+→ Conv1D(64) + MaxPool(2) + Dropout(0.3)
+→ Conv1D(128) + GlobalAvgPool + Dropout(0.4)
 → Dense(64, relu) + Dropout(0.4)
 → Dense(6, softmax) [Output]
 ```
@@ -91,14 +91,13 @@ Input (47, 1)
 - 2 convolutional layers (64 → 128 filters) to extract audio patterns
 - MaxPooling and Dropout for regularization
 - 1 dense hidden layer (64 units)
-- ~50,000 parameters
 
 ### Multimodal CNN (audio + text)
 ```
 Audio Branch: 
   Input (47, 1) 
-  → Conv1D(64, kernel=3) + MaxPool(2)
-  → Conv1D(128, kernel=3) + GlobalAvgPool
+  → Conv1D(64) + MaxPool(2)
+  → Conv1D(128) + GlobalAvgPool
   → Dropout(0.3) → [128 features]
 
 Text Branch:  
