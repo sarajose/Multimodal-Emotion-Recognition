@@ -34,13 +34,13 @@ def load_data_and_models():
     """Load test data and trained models"""
     print(f"Loading {DATASET_NAME} test data and models...")
     
-    test_data = np.load(f'{RESULTS_DIR}/test_features.npz')
-    X_test_audio = test_data['X_audio']
-    X_test_text = test_data['X_text']
-    y_test = test_data['y']
+    # Load the preprocessed test data saved by train_meld.py
+    test_data = np.load(f'{RESULTS_DIR}/test_data.npz')
+    X_test_audio = test_data['X_audio_test']
+    X_test_text = test_data['X_text_test']
+    y_test = test_data['y_test']
     
-    if len(X_test_audio.shape) == 2:
-        X_test_audio = X_test_audio.reshape(X_test_audio.shape[0], X_test_audio.shape[1], 1)
+    # Audio is already in the correct shape from training
     
     baseline_model = tf.keras.models.load_model(f'{RESULTS_DIR}/baseline_cnn.h5')
     multimodal_model = tf.keras.models.load_model(f'{RESULTS_DIR}/multimodal_cnn.h5')
@@ -53,7 +53,7 @@ def load_data_and_models():
 
 def generate_predictions(X_audio, X_text, baseline_model, multimodal_model):
     """Generate predictions from both models"""
-    print("\nGenerating predictions...")
+    print("\nGenerating predictions")
     
     y_pred_baseline_proba = baseline_model.predict(X_audio, verbose=0)
     y_pred_baseline = np.argmax(y_pred_baseline_proba, axis=1)
@@ -239,8 +239,6 @@ def main():
     plot_f1_comparison(y_test, y_pred_baseline, y_pred_multimodal)
     
     print(" All figures saved to:", FIGURES_DIR)
-
-
 
 if __name__ == "__main__":
     main()
