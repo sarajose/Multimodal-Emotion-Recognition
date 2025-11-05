@@ -91,7 +91,7 @@ def quick_test():
     print(f"Text features shape: {X_text.shape}")
     print(f"Emotion distribution: {np.bincount(y)}")
     
-    # Split data - use stratify only if we have enough samples per class
+    # Split data
     min_class_count = np.min(np.bincount(y))
     use_stratify = min_class_count >= 2
     
@@ -169,7 +169,7 @@ def quick_test():
     multimodal_history = multimodal_cnn.train(
         X_audio_train, X_text_train, y_train,
         X_audio_val, X_text_val, y_val,
-        epochs=5,  # Quick test with fewer epochs
+        epochs=5,
         batch_size=16
     )
     
