@@ -17,7 +17,7 @@ This project compares two deep learning (CNN) approaches for speech emotion reco
 
 **Download:**
 1. Download from [Kaggle - CREMA-D Dataset](https://www.kaggle.com/datasets/ejlok1/cremad)
-2. Extract the raw `.wav` files into the `data/` folder
+2. Create a `data/` folder and extract `.wav` files into it.
 
 ### MELD (Multimodal EmotionLines Dataset)
 - Multimodal emotion recognition dataset
@@ -25,7 +25,7 @@ This project compares two deep learning (CNN) approaches for speech emotion reco
 
 **Download:**
 1. Download from [Kaggle - MELD Dataset](https://www.kaggle.com/datasets/zaber666/meld-dataset)
-2. Extract the `MELD.Raw` folder into `MELD_raw_data/`
+2. Create a `MELD_raw_data/` folder and extract `MELD.Raw` folder into it.
 
 **Note:** Both data folders are not included in this repository due to size constraints.
 
