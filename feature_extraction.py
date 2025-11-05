@@ -150,13 +150,11 @@ class FeatureExtractor:
                 'emotion_name': emotion_code
             })
         
-        # Step 3: Return the complete dataset
         print(f"Extracted features from {len(data)} samples")
         return data
 
 
 if __name__ == "__main__":
-    # Quick test of this file
     extractor = FeatureExtractor('data')
     print("Testing feature extraction on 10 samples")
     data = extractor.extract_all_features(max_samples=10)
