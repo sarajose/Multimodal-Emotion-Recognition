@@ -94,55 +94,68 @@ This will:
 ### Baseline CNN (audio only)
 ```
 Input (47, 1) 
-→ Conv1D(64) + MaxPool(2) + Dropout(0.3)
-→ Conv1D(128) + GlobalAvgPool + Dropout(0.4)
-→ Dense(64, relu) + Dropout(0.4)
-→ Dense(6, softmax) [Output]
+→ Conv1D(128) + BatchNorm + MaxPool(2) + Dropout(0.3)
+→ Conv1D(256) + BatchNorm + GlobalAvgPool + Dropout(0.4)
+→ Dense(128, relu) + Dropout(0.5)
+→ Dense(6/7, softmax) [Output]
 ```
 **Architecture Details:**
-- 2 convolutional layers (64 → 128 filters) to extract audio patterns
+- **Enhanced architecture** with increased capacity for better performance
+- 2 convolutional layers (128 → 256 filters) to extract audio patterns
+- **Batch Normalization** added after each Conv1D layer for training stability
 - MaxPooling and Dropout for regularization
-- 1 dense hidden layer (64 units)
+- 1 dense hidden layer (128 units, increased from 64)
+- Higher dropout (0.5) for better generalization
+- Reduced learning rate (0.0005) for better convergence
+- Output: 6 classes (CREMA-D) or 7 classes (MELD)
 
 ### Multimodal CNN (audio + text)
 ```
 Audio Branch: 
   Input (47, 1) 
-  → Conv1D(64) + MaxPool(2)
-  → Conv1D(128) + GlobalAvgPool
-  → Dropout(0.3) → [128 features]
+  → Conv1D(128) + BatchNorm + MaxPool(2)
+  → Conv1D(256) + BatchNorm + GlobalAvgPool
+  → Dropout(0.3) → [256 features]
 
 Text Branch:  
   Input (5,) 
-  → Dense(64, relu)
-  → Dense(128, relu) → [128 features]
+  → Dense(128, relu) + BatchNorm
+  → Dense(256, relu) → [256 features]
 
 Fusion: 
-  Concatenate [audio + text] → (256,)
+  Concatenate [audio + text] → (512,)
   → Dropout(0.4)
-  → Dense(64, relu)
-  → Dense(6, softmax) [Output]
+  → Dense(128, relu)
+  → Dropout(0.5)
+  → Dense(6/7, softmax) [Output]
 ```
 **Architecture Details:**
+- **Enhanced architecture** with significantly increased capacity
 - Audio and text branches process features separately
+- **Batch Normalization** added for training stability
+- Audio branch: 128 → 256 filters (increased from 64 → 128)
+- Text branch: 128 → 256 dimensions (increased from 64 → 128)
 - Simple concatenation fusion (no attention mechanism)
-- Combined features: 256 dimensions (128 audio + 128 text)
-- 1 dense hidden layer (64 units) after fusion
+- Combined features: 512 dimensions (256 audio + 256 text)
+- 1 dense hidden layer (128 units, increased from 64) after fusion
+- Higher dropout (0.5) and reduced learning rate (0.0005)
+- Output: 6 classes (CREMA-D) or 7 classes (MELD)
 
 ## Dependencies
 Can be found in requirements.txt
 
 ## Output Files
 
-After training, the following files are saved in `results/` and in `figures/`:
+After training, the following files are saved in `results/` (CREMA-D) or `results_meld/` (MELD), and figures in `figures/` or `figures_meld/`:
 
 - `baseline_cnn.h5` - Trained baseline model
 - `multimodal_cnn.h5` - Trained multimodal model
 - `audio_scaler.pkl` - Audio feature scaler
 - `text_scaler.pkl` - Text feature scaler
 - `test_data.npz` - Test set for evaluation
-- `confusion_matrices.png` - Side-by-side confusion matrices
-- `per_class_f1_comparison.png` - Per-emotion F1 scores
+- `confusion_matrices_comparison.png` - Side-by-side confusion matrices
+- `f1_score_comparison.png` - Per-emotion F1 scores comparison
+- `roc_curves_comparison.png` - ROC curves for all classes
 - `evaluation_report.txt` - Detailed text report
 
 ## License
