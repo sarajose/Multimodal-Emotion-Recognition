@@ -129,18 +129,6 @@ Fusion:
   → Dropout(0.5)
   → Dense(6/7, softmax) [Output]
 ```
-**Architecture Details:**
-- **Enhanced architecture** with significantly increased capacity
-- Audio and text branches process features separately
-- **Batch Normalization** added for training stability
-- Audio branch: 128 → 256 filters (increased from 64 → 128)
-- Text branch: 128 → 256 dimensions (increased from 64 → 128)
-- Simple concatenation fusion (no attention mechanism)
-- Combined features: 512 dimensions (256 audio + 256 text)
-- 1 dense hidden layer (128 units, increased from 64) after fusion
-- Higher dropout (0.5) and reduced learning rate (0.0005)
-- Output: 6 classes (CREMA-D) or 7 classes (MELD)
-
 ## Dependencies
 Can be found in requirements.txt
 
