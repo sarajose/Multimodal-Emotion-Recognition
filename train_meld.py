@@ -2,7 +2,6 @@
 Training Script for MELD Dataset
 Trains baseline and multimodal CNN models on MELD features
 """
-
 import os
 import argparse
 import numpy as np
@@ -14,12 +13,11 @@ import matplotlib.pyplot as plt
 # Import models from existing models.py
 from models import BaselineCNN, MultimodalCNN
 
-
 def load_meld_data(data_path='results_meld'):
     """Load MELD features from saved files"""
     
     # Load train, dev, test splits
-    print("Loading MELD data...")
+    print("Loading MELD data")
     
     train_data = np.load(os.path.join(data_path, 'train_features.npz'))
     dev_data = np.load(os.path.join(data_path, 'dev_features.npz'))
@@ -39,12 +37,12 @@ def load_meld_data(data_path='results_meld'):
     y_test = test_data['y']
     
     print(f"\nDataset loaded:")
-    print(f"  Train: {len(y_train)} samples")
-    print(f"  Dev: {len(y_dev)} samples")
-    print(f"  Test: {len(y_test)} samples")
-    print(f"  Audio features: {X_audio_train.shape[1]} dimensions")
-    print(f"  Text features: {X_text_train.shape[1]} dimensions")
-    print(f"  Classes: {len(np.unique(y_train))} emotions")
+    print(f"Train: {len(y_train)} samples")
+    print(f"Dev: {len(y_dev)} samples")
+    print(f"Test: {len(y_test)} samples")
+    print(f"Audio features: {X_audio_train.shape[1]} dimensions")
+    print(f"Text features: {X_text_train.shape[1]} dimensions")
+    print(f"Classes: {len(np.unique(y_train))} emotions")
     
     # Emotion distribution
     print(f"\nTrain emotion distribution:")
@@ -61,8 +59,7 @@ def normalize_features(X_audio_train, X_audio_dev, X_audio_test,
                        X_text_train, X_text_dev, X_text_test):
     """Normalize audio and text features using StandardScaler"""
     
-    print("\nNormalizing features...")
-    
+    print("\nNormalizing features")
     # Audio features
     audio_scaler = StandardScaler()
     X_audio_train_norm = audio_scaler.fit_transform(X_audio_train)
@@ -75,8 +72,6 @@ def normalize_features(X_audio_train, X_audio_dev, X_audio_test,
     X_text_dev_norm = text_scaler.transform(X_text_dev)
     X_text_test_norm = text_scaler.transform(X_text_test)
     
-    print("  Features normalized")
-    
     return (X_audio_train_norm, X_audio_dev_norm, X_audio_test_norm,
             X_text_train_norm, X_text_dev_norm, X_text_test_norm,
             audio_scaler, text_scaler)
@@ -85,22 +80,22 @@ def normalize_features(X_audio_train, X_audio_dev, X_audio_test,
 def train_model(model, X_train, y_train, X_val, y_val, model_name, 
                 output_path, epochs=50, class_weights=None):
     """Train a model with early stopping"""
-    
     print(f"Training {model_name}")
 
     
     # Callbacks
     early_stop = tf.keras.callbacks.EarlyStopping(
-        monitor='val_loss',
-        patience=10,
+        monitor='val_accuracy', 
+        patience=15,
         restore_best_weights=True,
+        mode='max',
         verbose=1
     )
     
     reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
         monitor='val_loss',
         factor=0.5,
-        patience=5,
+        patience=7,
         min_lr=1e-7,
         verbose=1 
     )
@@ -112,7 +107,7 @@ def train_model(model, X_train, y_train, X_val, y_val, model_name,
         X_train, y_train,
         validation_data=(X_val, y_val),
         epochs=epochs,
-        batch_size=32,
+        batch_size=64,
         callbacks=[early_stop, reduce_lr],
         class_weight=class_weights,
         verbose=1
@@ -133,7 +128,6 @@ def plot_training_history(history, model_name, output_path):
     """Plot and save training history"""
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-    
     # Accuracy
     ax1.plot(history.history['accuracy'], label='Train')
     ax1.plot(history.history['val_accuracy'], label='Validation')
@@ -161,24 +155,19 @@ def plot_training_history(history, model_name, output_path):
 
 def evaluate_model(model, X_test, y_test, model_name):
     """Evaluate model on test set"""
-    
-    print(f"\n{'='*60}")
     print(f"Evaluating {model_name}")
-    print('='*60)
     
-    # Evaluate - use model.model if it's a wrapped model
+    # Evaluate
     keras_model = model.model if hasattr(model, 'model') else model
     test_loss, test_acc = keras_model.evaluate(X_test, y_test, verbose=0)
     
     print(f"Test Loss: {test_loss:.4f}")
     print(f"Test Accuracy: {test_acc:.4f} ({test_acc*100:.2f}%)")
-    
     return test_loss, test_acc
 
 
 def main():
     """Main training function"""
-    
     parser = argparse.ArgumentParser(description='Train models on MELD dataset')
     parser.add_argument('--data-path', type=str, default='results_meld',
                        help='Path to MELD features')
@@ -188,10 +177,9 @@ def main():
                        help='Maximum number of epochs')
     parser.add_argument('--use-class-weights', action='store_true',
                        help='Use class weights for imbalanced data')
-    
     args = parser.parse_args()
     
-    # Create output directory
+    # Output directory
     os.makedirs(args.output_path, exist_ok=True)
     
     # Load data
@@ -207,27 +195,26 @@ def main():
         X_text_train, X_text_dev, X_text_test
     )
     
-    # Reshape for CNN (add channel dimension)
+    # Reshape for CNN
     X_audio_train_cnn = X_audio_train_norm.reshape(-1, X_audio_train_norm.shape[1], 1)
     X_audio_dev_cnn = X_audio_dev_norm.reshape(-1, X_audio_dev_norm.shape[1], 1)
     X_audio_test_cnn = X_audio_test_norm.reshape(-1, X_audio_test_norm.shape[1], 1)
     
-    # Compute class weights if requested
+    # Compute class weights
     class_weights = None
     if args.use_class_weights:
-        print("\nComputing class weights for imbalanced data...")
+        print("\nComputing class weights for imbalanced data")
         classes = np.unique(y_train)
         weights = compute_class_weight('balanced', classes=classes, y=y_train)
         class_weights = dict(zip(classes, weights))
         print("Class weights:", class_weights)
     
-    # Number of classes (7 for MELD)
+    # Number of classes
     num_classes = len(np.unique(y_train))
     
-    # Train Baseline CNN (audio only)
-    print("\n" + "="*60)
-    print("BASELINE CNN (Audio Only)")
-    print("="*60)
+    # Train baseline CNN
+    print("Baseline CNN")
+
     
     baseline_model = BaselineCNN(
         audio_dim=X_audio_train_cnn.shape[1],
@@ -254,10 +241,8 @@ def main():
         'Baseline CNN'
     )
     
-    # Train Multimodal CNN (audio + text)
-    print("\n" + "="*60)
-    print("MULTIMODAL CNN (Audio + Text)")
-    print("="*60)
+    # Train multimodal CNN
+    print("Multimodal CNN (Audio and Text)")
     
     multimodal_model = MultimodalCNN(
         audio_dim=X_audio_train_cnn.shape[1],

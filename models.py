@@ -1,14 +1,12 @@
 """
 CNN Models for Emotion Recognition
-- Baseline CNN: Audio-only features
-- Multimodal CNN: Audio + Text fusion with attention
+Baseline CNN: Audio-only features
+Multimodal CNN: Audio + Text fusion with attention
 """
-
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, Model
-
 
 class BaselineCNN:
     """CNN for audio only emotion recognition"""
@@ -21,30 +19,32 @@ class BaselineCNN:
     def _build_model(self):
         """CNN architecture for audio features"""
         
-        # Input: audio features (47 dimensions)
+        # Input: audio features
         audio_input = layers.Input(shape=(self.audio_dim, 1), name='audio_input')
         
-        # Layer 1: Extract patterns (64 filters)
-        x = layers.Conv1D(64, kernel_size=3, padding='same', activation='relu')(audio_input)
+        # Layer 1: Extract patterns
+        x = layers.Conv1D(128, kernel_size=3, padding='same', activation='relu')(audio_input)
+        x = layers.BatchNormalization()(x) 
         x = layers.MaxPooling1D(pool_size=2)(x)
         x = layers.Dropout(0.3)(x)
         
-        # Layer 2: Learn higher-level features (128 filters)
-        x = layers.Conv1D(128, kernel_size=3, padding='same', activation='relu')(x)
-        x = layers.GlobalAveragePooling1D()(x)  # Flatten to vector
+        # Layer 2: Learn higher-level features
+        x = layers.Conv1D(256, kernel_size=3, padding='same', activation='relu')(x)
+        x = layers.BatchNormalization()(x) 
+        x = layers.GlobalAveragePooling1D()(x) 
         x = layers.Dropout(0.4)(x)
         
         # Classification: Convert to emotions
-        x = layers.Dense(64, activation='relu')(x)
-        x = layers.Dropout(0.4)(x)
+        x = layers.Dense(128, activation='relu')(x)
+        x = layers.Dropout(0.5)(x) 
         
-        # Output: 6 emotion probabilities
+        # Output: emotion probabilities
         output = layers.Dense(self.num_classes, activation='softmax', name='output')(x)
         
         model = Model(inputs=audio_input, outputs=output, name='BaselineCNN')
         
         model.compile(
-            optimizer=keras.optimizers.Adam(learning_rate=0.001),
+            optimizer=keras.optimizers.Adam(learning_rate=0.0005),
             loss='sparse_categorical_crossentropy',
             metrics=['accuracy']
         )
@@ -95,15 +95,17 @@ class MultimodalCNN:
         self.model = self._build_model()
     
     def _build_model(self):
-        """Build SIMPLIFIED multimodal CNN"""
+        """Build multimodal CNN"""
         
         # AUDIO 
         audio_input = layers.Input(shape=(self.audio_dim, 1), name='audio_input')
         
         # Extract audio patterns
-        a = layers.Conv1D(64, kernel_size=3, padding='same', activation='relu')(audio_input)
+        a = layers.Conv1D(128, kernel_size=3, padding='same', activation='relu')(audio_input)
+        a = layers.BatchNormalization()(a)
         a = layers.MaxPooling1D(pool_size=2)(a)
-        a = layers.Conv1D(128, kernel_size=3, padding='same', activation='relu')(a)
+        a = layers.Conv1D(256, kernel_size=3, padding='same', activation='relu')(a)
+        a = layers.BatchNormalization()(a)
         a = layers.GlobalAveragePooling1D()(a)
         audio_features = layers.Dropout(0.3)(a)
         
@@ -111,15 +113,17 @@ class MultimodalCNN:
         text_input = layers.Input(shape=(self.text_dim,), name='text_input')
         
         # Expand text features to match audio size
-        t = layers.Dense(64, activation='relu')(text_input)
-        text_features = layers.Dense(128, activation='relu')(t) 
+        t = layers.Dense(128, activation='relu')(text_input)
+        t = layers.BatchNormalization()(t)
+        text_features = layers.Dense(256, activation='relu')(t) 
         
-        # Stack audio and text together
-        combined = layers.Concatenate()([audio_features, text_features])  # 128 + 128 = 256
+        # Stack audio and text
+        combined = layers.Concatenate()([audio_features, text_features])
         combined = layers.Dropout(0.4)(combined)
         
         # Predict emotion
-        x = layers.Dense(64, activation='relu')(combined)
+        x = layers.Dense(128, activation='relu')(combined)
+        x = layers.Dropout(0.5)(x)
         output = layers.Dense(self.num_classes, activation='softmax')(x)
         
         model = Model(
@@ -129,7 +133,7 @@ class MultimodalCNN:
         )
         
         model.compile(
-            optimizer=keras.optimizers.Adam(learning_rate=0.001),
+            optimizer=keras.optimizers.Adam(learning_rate=0.0005),
             loss='sparse_categorical_crossentropy',
             metrics=['accuracy']
         )
@@ -184,10 +188,10 @@ class MultimodalCNN:
         self.model = keras.models.load_model(filepath)
 
 if __name__ == "__main__":
-    print("Testing Baseline CNN architecture...")
-    baseline = BaselineCNN(audio_dim=47, num_classes=6)  # 47 audio features
+    print("Testing Baseline CNN architecture")
+    baseline = BaselineCNN(audio_dim=47, num_classes=6)
     baseline.model.summary()
     
     print("Testing Multimodal CNN architecture")
-    multimodal = MultimodalCNN(audio_dim=47, text_dim=5, num_classes=6)  # 47 audio + 5 text
+    multimodal = MultimodalCNN(audio_dim=47, text_dim=5, num_classes=6)
     multimodal.model.summary()
